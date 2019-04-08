@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Libraries</h2>
+<div id="apps">
+    <ul>
+        <li>
+            <a href="pos_tagger">
+                <div class="icon">
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    PP
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </div>
+                Parts of Speech Tagging
+            </a>
+        </li>
+        <li> <a href="ner">
+                <div class="icon">
+                    NER
+                </div>
+                Named Entity Recognition
+            </a>
+        </li>
+        <li>
+            <a href="gender_number">
+                <div class="icon">
+                    <i class="fa fa-venus-mars big" aria-hidden="true"></i>
+                </div>
+                Gender and Number Identification
+            </a>
+        </li>
+        <li>
+            <a href="np_extraction">
+                <div class="icon">NP</div>
+                Noun Phrase Extraction
+            </a>
+        </li>
+        <li>
+            <a href="coreference_resolution">
+                <div class="icon">
+                    <i class="fa fa-file-text-o big" aria-hidden="true"></i>
+
+                </div>
+                Coreference Resolver
+            </a>
+        </li>
+    </ul>
+</div>
+{% endblock %}

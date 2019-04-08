@@ -1,0 +1,144 @@
+{% extends "app.html" %}
+{% block icon %}
+<i class="fa fa-file-text-o big" aria-hidden="true"></i>
+{% endblock %}
+{% block result %}
+<style type="text/css">
+    span[class^="e"] {
+        position: relative;
+        left: 0;
+        padding: 5px;
+        height: 20px;
+        border-radius: 4px;
+        border: 1px solid #555;
+        padding-right: 20px;
+        white-space: nowrap;
+    }
+
+    span sub,
+    span sup {
+        height: 10px;
+        position: absolute;
+        right: 2px;
+        font-size: 12px;
+    }
+
+    span sup {
+        top: -12px;
+    }
+
+    span sub {
+        bottom: 18px;
+    }
+</style>
+<script>
+    result = "{{result}}";
+    result = result.replace(/[" "]+([\.\,\;\?\.\-\'\"])/g, "$1")
+    result = result.replace(/\[([^\[\]]+)\]\((\d+), (\d+)\)/g,
+        "<span class='e$2' id='m$3'>$1<sup>$2</sup><sub>$3</sub></span>");
+    result = result.replace(/\[([^\[\]]+)\]\((\d+), (\d+)\)/g,
+        "<span class='e$2' id='m$3'>$1<sup>$2</sup><sub>$3</sub></span>");
+    document.write(result);
+
+    var allElements = document.querySelectorAll('*');
+
+    var k = 0;
+    colors = ['9AD3EE', 'FF4040', 'EEE9E9', 'CD9B9B', 'FF7712', 'FDF5E6', 'FFEC8B', 'D02090', '292421',
+        '8B5A2B', 'CAFF70', 'FFFAFA', '63B8FF', 'F0E68C', 'EE6A50', 'CD661D', 'FFFFF0', '551A8B', 'CD5555',
+        'CDBE70', '00008B', '0000CD', 'BCD2EE', '8B2323', 'EE82EE', 'FFFFE0', 'EE9572', 'FFC1C1', '4169E1',
+        '528B8B', 'EEEED1', '66CD00', '8B4500', '0000EE', 'B452CD', '00BFFF', 'EE2C2C', 'FAFAD2', 'CDB38B',
+        '8B5742', '66CDAA', '8B7D6B', 'FFF8DC', '0000FF', 'CD6600', 'EEB4B4', 'C67171', 'EECBAD', '7171C6',
+        '800000', 'FFB5C5', '607B8B', 'E6E6FA', '8B4C39', '98FB98', 'CDCDC1', 'CDAD00', '7A8B8B', 'EEE8CD',
+        'EEDC82', 'EE7621', '8B008B', 'E066FF', '8A2BE2', 'EEDFCC', 'E9967A', '7D26CD', 'A0522D', 'FF0000',
+        '008080', 'CD6889', 'CD7054', '00FFFF', '548B54', '483D8B', 'F0F8FF', 'EEA2AD', 'CDC0B0', 'EEE8AA',
+        'FF6347', '6A5ACD', '48D1CC', 'C1CDCD', 'CD69C9', 'FFD700', 'FF34B3', '8B5F65', '4F94CD', 'FF1493',
+        'CD3700', '7FFF00', 'B0E0E6', 'E3CF57', 'FF7256', 'FFBBFF', 'FCE6C9', 'DDA0DD', '96CDCD', '8B3A3A',
+        '9932CC', '8470FF', 'F0FFF0', '8B8B83', 'FFF0F5', 'CDB79E', '009ACD', '27408B', 'BF3EFF', 'EE7AE9',
+        '98F5FF', '458B74', '912CEE', 'EED5B7', '5CACEE', 'FF7D40', '53868B', '8B475D', '54FF9F', '6495ED',
+        '68838B', '76EEC6', 'FFE4C4', 'B22222', '8EE5EE', '4876FF', '40E0D0', '8B1A1A', 'EEE685', '4682B4',
+        '2E8B57', '7A67EE', 'FF69B4', 'EECFA1', 'FF8C00', '698B69', '87CEFA', '00EE00', '00EEEE', '00C78C',
+        '000080', '6959CD', 'FFFAF0', 'CDAA7D', 'EEC900', '3A5FCD', '7AC5CD', '8B8970', 'EE30A7', 'BA55D3',
+        'B2DFEE', 'E0EEE0', '00C957', '20B2AA', 'AEEEEE', '8B8989', 'EE3B3B', 'CAE1FF', 'EE5C42', 'FFEBCD',
+        'E3A869', '8DEEEE', 'EEEEE0', 'EE3A8C', 'FF6EB4', '6E7B8B', 'EE9A00', 'EEB422', 'EE6363', '8B8682',
+        'F5F5DC', '228B22', 'CDC1C5', 'C1CDC1', 'CDCDB4', 'B0E2FF', '808000', '104E8B', '8B6914', '00CDCD',
+        'FFC0CB', '00CD66', 'EE9A49', 'C0FF3E', 'FFFF00', 'FFA54F', '8B7E66', 'B0C4DE', '8B4789', 'CD6839',
+        '00EE76', '4EEE94', 'FF8247', 'CD6090', '8B1C62', '7CCD7C', 'FFDAB9', 'CD4F39', '8B3A62', '8B3626',
+        '008B45', '6CA6CD', '00868B', 'DB7093', '3CB371', 'CD5B45', 'CDC9A5', 'EE7600', 'FFA500', 'FF82AB',
+        'CD9B1D', '8B8B00', '8A3324', '00CD00', 'EEA9B8', 'DEB887', '836FFF', 'F5FFFA', 'B8860B', 'EE6AA7',
+        'B4EEB4', 'EEE5DE', '8B668B', '7CFC00', 'FFE7BA', 'CD8500', 'BBFFFF', 'A4D3EE', '87CEEB', '838B83',
+        'A2CD5A', '8B8878', '8B8386', 'E0FFFF', '43CD80', '008000', '808069', '00F5FF', '8B864E', 'DA70D6',
+        'EEE0E5', 'EED2EE', '473C8B', 'CDB7B5', 'F4A460', '7A378B', '8B5A00', '8B6508', '9ACD32', 'F08080',
+        'FF8C69', '7FFFD4', '36648B', 'EE7942', 'C71585', '556B2F', 'FF7F50', 'EEE9BF', '6E8B3D', 'FF8000',
+        '006400', 'CDAF95', 'FAF0E6', 'EEC591', 'ED9121', 'DAA520', 'FF7F24', '8B7D7B', '00CED1', 'CD950C',
+        '9C661F', 'A52A2A', 'DC143C', 'F5DEB3', 'CD8162', '8B2500', 'CD00CD', '9B30FF', '8B7500', '71C671',
+        '308014', 'CD0000', '9A32CD', '7EC0EE', 'FFB90F', '8B2252', '9BCD9B', 'BFEFFF', 'FFE1FF', 'CDC9C9',
+        '2F4F4F', 'D2691E', 'FA8072', 'C1FFC1', '8B0000', '87CEFF', 'FFFACD', 'B3EE3A', '3D59AB', 'CD2626',
+        '1874CD', 'D15FEE', '8B8B7A', '9370DB', '7D9EC0', '97FFFF', '03A89E', 'E0EEEE', '8B795E', '8B7765',
+        '8B814C', 'EEAD0E', 'FF7F00', 'FF83FA', 'EE00EE', '8B3E2F', '76EE00', 'FFC125', 'EE4000', 'FFDEAD',
+        'CD5C5C', '8B4726', '00FF7F', 'CD3278', '32CD32', 'CDC673', '9AC0CD', '872657', '00E5EE', '8E8E38',
+        'FFE4B5', 'C6E2FF', '388E8E', '9FB6CD', 'BDFCC9', '00FA9A', 'EED5D2', '191970', 'CD96CD', 'EED8AE',
+        '8DB6CD', 'FF6103', 'A2B5CD', 'ADFF2F', '5F9EA0', 'FF9912', 'FFEFD5', '008B00', 'FFD39B', 'CDC8B1',
+        '698B22', 'EE799F', 'EE1289', 'CD2990', 'C5C1AA', '708090', '8B636C', 'FFA07A', 'FF00FF', 'EEEE00',
+        'FFAEB9', '4B0082', '9F79EE', '5E2612', 'CD1076', '5D478B', '1C86EE', '668B8B', 'AB82FF', '8E388E',
+        '7B68EE', 'D1EEEE', '778899', '8A360F', 'CD919E', 'FF4500', '8B0A50', 'ADD8E6', 'B23AEE', 'CD3333',
+        '8FBC8F', 'FFEFDB', '838B8B', 'CDBA96', '1E90FF', '008B8B', '3D9140', 'EE0000', 'FFB6C1', 'FF3E96',
+        '808A87', 'D2B48C', '90EE90', 'FF6A6A', '33A1C9', 'F0FFFF', '8B8378', '8B6969', '8968CD', '8B7355',
+        '6B8E23', '4A708B', '00688B', 'B0171F', '00B2EE', 'F8F8FF', 'FFF68F', 'BC8F8F', 'C76114', '8B4513',
+        'FF3030', '79CDCD', 'FAEBD7', '68228B', 'FFE4E1', '00FF00', 'CDB5CD', 'CD8C95', '458B00', 'CDC5BF',
+        '8B7B8B', 'CDCD00', 'EEAEEE', '800080', '9AFF9A', '9400D3', '00C5CD', '6C7B8B', 'CD853F', 'EE8262',
+        'B4CDCD', 'D8BFD8', '436EEE', 'BDB76B'
+    ]
+
+    var allClasses = [];
+
+    function invertColor(hex, bw) {
+        if (hex.indexOf('#') === 0) {
+            hex = hex.slice(1);
+        }
+        // convert 3-digit hex to 6-digits.
+        if (hex.length === 3) {
+            hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+        }
+        if (hex.length !== 6) {
+            throw new Error('Invalid HEX color.');
+        }
+        var r = parseInt(hex.slice(0, 2), 16),
+            g = parseInt(hex.slice(2, 4), 16),
+            b = parseInt(hex.slice(4, 6), 16);
+        if (bw) {
+            // http://stackoverflow.com/a/3943023/112731
+            return (r * 0.299 + g * 0.587 + b * 0.114) > 186 ?
+                '#000000' :
+                '#FFFFFF';
+        }
+        // invert color components
+        r = (255 - r).toString(16);
+        g = (255 - g).toString(16);
+        b = (255 - b).toString(16);
+        // pad each with zeros and return
+        return "#" + padZero(r) + padZero(g) + padZero(b);
+    }
+
+    function change(x, c) {
+        elements = document.getElementsByClassName(x);
+        for (var i = 0; i < elements.length; i++) {
+            elements[i].style.backgroundColor = c;
+            elements[i].style.color = invertColor(c, true);
+        }
+    }
+
+
+    for (var i = 0; i < allElements.length; i++) {
+        var classes = allElements[i].className.toString().split(/\s+/);
+        for (var j = 0; j < classes.length; j++) {
+            if (classes[j][0] != "e") continue;
+            var cls = classes[j];
+            if (cls && allClasses.indexOf(cls) === -1) {
+                allClasses.push(cls);
+                change(cls, colors[k]);
+                k = (k + 1) % colors.length;
+            }
+        }
+    }
+</script>
+{% endblock %}

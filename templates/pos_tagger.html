@@ -1,0 +1,47 @@
+{% extends "app.html" %}
+{% block icon %}
+<i class="fa fa-angle-left" aria-hidden="true"></i>
+PP
+<i class="fa fa-angle-right" aria-hidden="true"></i>
+{% endblock %}
+{% block result %}
+<style type="text/css">
+.pair{
+    display: inline-block;
+    text-align: center;
+    margin: 5px;
+    min-width: 75px;
+}
+.word, .tag{
+    padding: 1px 5px;
+    margin: 2px;
+    font-size: 14px;
+    border-radius: 5px;
+    display: block;
+    color: black;
+}
+.word{
+    background:#ffc6d0;
+    border: 1px solid #ff4467;
+}
+.tag{
+    background:#c9d0f8;
+    border: 1px solid #445ff5;
+}
+
+</style>
+<script>
+    result = "{{result}}";
+    result = result.replace(/\&\#39\;/g, "'");
+    result = result.replace(/\&quot\;/g, "'");
+    console.log(result);
+    result = result.slice(3,-3);
+    tagged = result.split("'), ('");
+    for(i in tagged){
+        pair = tagged[i].split("', '");
+        word = pair[0];
+        tag = pair[1];
+        document.write("<div class='pair'><span class='word'>"+word+"</span><span class='tag'>"+tag.toUpperCase()+"</span></div>");
+    }
+</script>
+{% endblock %}

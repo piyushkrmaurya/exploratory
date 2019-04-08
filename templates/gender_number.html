@@ -1,0 +1,46 @@
+{% extends "app.html" %}
+{% block icon %}
+<i class="fa fa-venus-mars big" aria-hidden="true"></i>
+{% endblock %}
+{% block result %}
+<style type="text/css">
+#gender, #number{
+    margin: auto;
+    display: inline-block;
+    padding: 2px;
+    margin: 5px;
+    width: 100px;
+    border-radius: 5px;
+}
+.female{
+    background:#ffc6d0;
+    color: #ff4467;
+    border: 1px solid #ff4467;
+}
+.male{
+    background:#c9d0f8;
+    color: #445ff5;
+    border: 1px solid #445ff5;
+}
+.neutral{
+    background:#c9f8c9;
+    color: #38a72d;
+    border: 1px solid #38a72d;
+}
+.unknown, #number{
+    background:#eeeeee;
+    color: #464646;
+    border: 1px solid #464646;
+}
+#result{
+    text-align: center;
+}
+</style>
+<script>
+    result = "{{result}}".split(" ");
+    if(result.length==2){
+        document.write("<div id='gender' class='"+result[0].toLowerCase()+"'>"+result[0]+"</div>");
+        document.write("<div id='number'>"+result[1]+"</div>");
+    }
+</script>
+{% endblock %}

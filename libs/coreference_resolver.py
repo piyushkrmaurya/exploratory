@@ -394,11 +394,11 @@ class CoreferenceResolution:
                 
                 if Mention.check_parent(current_mention, candidate) or not candidate.isPronoun():
                     continue
-                    
 
                 if current_mention.speaker==candidate.speaker:
                     if "i" in utils.find_pronoun_group(current_mention.tokens[0]) and utils.check_pronoun_group(current_mention.tokens[0], candidate.tokens[0]):
                         candidate.merge(current_mention)
+
 
     def exact_string_match(self):
         for j in range(0, len(self.mentions) - 1):
@@ -603,7 +603,7 @@ class CoreferenceResolution:
                     break
 
 
-    def pronomial_resolution(self):
+    def pronominal_resolution(self):
 
         for j in range(1, len(self.mentions)):
             current_mention = self.mentions[j]
@@ -750,7 +750,7 @@ class CoreferenceResolution:
 
         self.relaxed_head_match()
 
-        self.pronomial_resolution()
+        self.pronominal_resolution()
 
         self.merge()
 
@@ -779,6 +779,7 @@ class CoreferenceResolution:
 
         document_position = -1
         prange = {10*i:list() for i in range(11)}
+        last_speaker = None
 
         for document in dataset.split("\n\n#end document"):
             annotated = {}

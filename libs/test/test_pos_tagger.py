@@ -1,7 +1,7 @@
 import json
 import pandas as pd
 from decimal import Decimal
-
+import re
 
 def dict_increase(d, k, v):
     temp_dict = d
@@ -71,18 +71,24 @@ def pos_tag(test_words, transition_probability, emission_probability):
 
 
 def test(predicted_tags):
-    with open("data/brown.csv", "r", encoding="utf8") as f:
+    with open("data/test.english.v4_gold_conll", "r", encoding="utf8") as f:
         dataset = f.read()
     f.close()
     words = []
     tags = []
     lw = []
     lt = []
-    for tagged in dataset.split("\n\n"):
-        for w_t in tagged.split("\n"):
-            print(w_t)
-            w, x, t = w_t.rsplit(",", 2)
-            lw.append(w.lower())
+    for annotations in dataset.split("\n\n"):
+        start=False
+        cur_t=''
+        for line in annotations.split("\n"):
+            line = re.sub(r"\s+", r"\t", line)
+            line = line.split("\t")
+            if len(line)<=10:
+                continue
+            w = line[3]
+            t = line[4]
+            lw.append(w)
             lt.append(t)
         words.append(lw)
         tags.append(lt)
@@ -109,15 +115,19 @@ def test(predicted_tags):
 
 def run():
 
-    with open("data/brown.csv", "r", encoding="utf8") as f:
+    with open("data/test.english.v4_gold_conll", "r", encoding="utf8") as f:
         dataset = f.read()
     f.close()
 
     words = []
     l = []
-    for tagged in dataset.split("\n\n"):
-        for w_t in tagged.split("\n"):
-            w, x, t = w_t.rsplit(",", 2)
+    for annotations in dataset.split("\n\n"):
+        for line in annotations.split("\n"):
+            line = re.sub(r"\s+", r"\t", line)
+            line = line.split("\t")
+            if len(line)<=10:
+                continue
+            w = line[3]
             l.append(w)
         words.append(l)
         l = []

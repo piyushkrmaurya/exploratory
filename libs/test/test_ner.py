@@ -1,5 +1,5 @@
 import json
-import pandas as pd
+import re
 from decimal import Decimal
 
 
@@ -62,24 +62,47 @@ def named_enitites(test_words, transition_probability, emission_probability):
                 print(dp)
             tag_list.append(last_tag)
             word_counter -= 1
-
         output_test_tags.append(list(reversed(tag_list)))
 
     return output_test_tags
 
 
 def test(predicted_tags):
-    with open("data/ner_dataset.csv", "r", encoding="utf8") as f:
+    with open("data/test.english.v4_gold_conll", "r", encoding="utf8") as f:
         dataset = f.read()
     f.close()
     words = []
     tags = []
     lw = []
     lt = []
-    for tagged in dataset.split("\n\n"):
-        for w_t in tagged.split("\n"):
-            print(w_t)
-            w, x, t = w_t.rsplit(",", 2)
+    for annotations in dataset.split("\n\n"):
+        start=False
+        cur_t=''
+        for line in annotations.split("\n"):
+            line = re.sub(r"\s+", r"\t", line)
+            line = line.split("\t")
+            if len(line)<=10:
+                continue
+            w = line[3]
+            t = line[10]
+            if t[0]=='(':
+                cur_t = t[1:-1]
+                if t[-1]!=')':
+                    start = True
+                else:
+                    start=False
+                t='B-'+cur_t
+            elif t=='*' and start:
+                t='I-'+cur_t
+            elif t=='*)':
+                t='I-'+cur_t
+                start=False
+                cur_t=''
+            else:
+                cur_t=''
+                t='O'
+            print(line)
+            print(w,t )
             lw.append(w)
             lt.append(t)
         words.append(lw)
@@ -107,15 +130,19 @@ def test(predicted_tags):
 
 def run():
 
-    with open("data/ner_dataset.csv", "r", encoding="utf8") as f:
+    with open("data/test.english.v4_gold_conll", "r", encoding="utf8") as f:
         dataset = f.read()
     f.close()
 
     words = []
     l = []
-    for tagged in dataset.split("\n\n"):
-        for w_t in tagged.split("\n"):
-            w, x, t = w_t.rsplit(",", 2)
+    for annotations in dataset.split("\n\n"):
+        for line in annotations.split("\n"):
+            line = re.sub(r"\s+", r"\t", line)
+            line = line.split("\t")
+            if len(line)<=10:
+                continue
+            w = line[3]
             l.append(w)
         words.append(l)
         l = []

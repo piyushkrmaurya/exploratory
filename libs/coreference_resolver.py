@@ -3,6 +3,7 @@ from . import pos_tagger, ner, utils, gender_number, tokenizer
 import sys
 import os
 import re
+import functools
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 class Token:
@@ -52,17 +53,26 @@ class Mention:
         if not dummy:
             Mention.id += 1
 
+    def position(self):
+        return (self.sentence_position, self.start_position, self.end_position)
+
     @classmethod
     def mention_from_object(Mention, mention):
         new_mention = Mention(mention.tokens, mention.sentence_position, mention.start_position, mention.end_position, ne=mention.ne)
         new_mention.parent = mention.parent
         new_mention.nested = mention.nested
+        for obj in new_mention.nested:
+            obj.parent = new_mention
         del mention
         return new_mention
 
     @classmethod
-    def check_parent(Mention, mention1, mention2):
-        return (mention1.parent and mention1.parent==mention2)
+    def check_i_in_i(Mention, mention1, mention2):
+        return ((mention1.parent is not None and mention1.parent==mention2) or (mention2.parent is not None and mention2.parent==mention1))
+
+    @classmethod
+    def textual_order(Mention, obj1, obj2):
+        return -1 if obj1.position()<=obj2.position() else 1
 
     def __str__(self):
         return utils.join(self.tokens)
@@ -84,7 +94,7 @@ class Mention:
 
         last = 0
         cur = "["
-        for mention in sorted(self.nested):
+        for mention in sorted(self.nested, key=functools.cmp_to_key(Mention.textual_order)):
             if mention == self:
                 continue
             start = mention.start_position - self.start_position
@@ -253,6 +263,10 @@ class CoreferenceResolution:
 
     def mention_detection(self):
         def extract_ne_pronoun(mention):
+
+            def dt_correlation(m1, m2):
+                return m1.tokens[0].pos_tag=="DT" and m1.tokens[1:]==m2
+
             start = 0
             cur = []
             nested = []
@@ -266,7 +280,7 @@ class CoreferenceResolution:
                 ne_tag = token.ne_tag.split("-")
                 if len(ne_tag) == 2:
                     if ne_tag[0] == "B":
-                        if len(cur_tag) and len(cur) < len(mention.tokens):
+                        if len(cur_tag) and len(cur) < len(mention.tokens) and not dt_correlation(mention, cur):
                             this_mention = Mention(
                                 cur,
                                 mention.sentence_position,
@@ -282,7 +296,7 @@ class CoreferenceResolution:
                         cur_tag = ne_tag[1]
                     cur.append(token)
 
-            if len(cur_tag) and len(cur) < len(mention.tokens):
+            if len(cur_tag) and len(cur) < len(mention.tokens) and not dt_correlation(mention, cur):
                 this_mention = Mention(
                     cur, mention.sentence_position, start, start + len(cur) - 1, cur_tag
                 )
@@ -392,7 +406,7 @@ class CoreferenceResolution:
                 candidate = self.mentions[i]
 
                 
-                if Mention.check_parent(current_mention, candidate) or not candidate.isPronoun():
+                if Mention.check_i_in_i(current_mention, candidate) or not candidate.isPronoun():
                     continue
 
                 if current_mention.speaker==candidate.speaker:
@@ -434,7 +448,7 @@ class CoreferenceResolution:
 
                 candidate = self.mentions[i]
 
-                if Mention.check_parent(current_mention, candidate) or candidate.isPronoun():
+                if Mention.check_i_in_i(current_mention, candidate) or candidate.isPronoun():
                     continue
 
                 cleaned_i = utils.join(
@@ -491,7 +505,9 @@ class CoreferenceResolution:
             return (
                 mention1.sentence_position == mention2.sentence_position
                 and len(mid) <= 3
+                and True in [a in mention2.animate for a in mention1.animate]
                 and True in [w in utils.join(mid) for w in be]
+                and True not in [str(w) not in be and w.pos_tag[:2]=="VB" for w in mid]
                 and True not in [w in utils.join(mid) for w in negatives]
                 and "," not in utils.join(mid)
             )
@@ -512,7 +528,7 @@ class CoreferenceResolution:
 
             for i in range(j - 1, -1, -1):
                 candidate = self.mentions[i]
-                if Mention.check_parent(current_mention, candidate):
+                if Mention.check_i_in_i(current_mention, candidate):
                     continue
 
                 if not candidate.isPronoun() and isAppositive(candidate, current_mention) or isRoleAppositive(
@@ -542,7 +558,7 @@ class CoreferenceResolution:
 
                 candidate = self.mentions[i]
 
-                if Mention.check_parent(current_mention, candidate):
+                if Mention.check_i_in_i(current_mention, candidate):
                     continue
                     
                 candidate_entity = self.mentions[candidate.entity_id]
@@ -555,7 +571,27 @@ class CoreferenceResolution:
                 if not len(cleaned_j) or current_mention.isPronoun():
                     continue
 
-                if (relax_word_inclusion or False not in [str(w) in utils.str_list(cleaned_i) for w in cleaned_j]) and (True in [str(w) in utils.str_list(candidate_entity.head_words()) for w in current_mention.head_words()]) and (relax_modifiers_match or False not in [str(w) in utils.str_list(candidate.modifiers()) for w in current_mention.modifiers()]):
+                if (
+                    (
+                        relax_word_inclusion
+                        or False not in [str(w) in utils.str_list(cleaned_i) for w in cleaned_j]
+                    )
+                    and (
+                        len(current_mention.head_words()) and False
+                        not in [
+                            str(w) in utils.str_list(candidate_entity.head_words())
+                            for w in current_mention.head_words()
+                        ]
+                    )
+                    and (
+                        relax_modifiers_match
+                        or False
+                        not in [
+                            str(w) in utils.str_list(candidate.modifiers())
+                            for w in current_mention.modifiers()
+                        ]
+                    )
+                ):
                     candidate.merge(current_mention)
                     break
 
@@ -571,7 +607,7 @@ class CoreferenceResolution:
 
                 candidate = self.mentions[i]
 
-                if Mention.check_parent(current_mention, candidate) or (
+                if Mention.check_i_in_i(current_mention, candidate) or (
                         self.mentions[i].ne
                         and self.mentions[j].ne
                         and self.mentions[i] != self.mentions[j]
@@ -579,7 +615,18 @@ class CoreferenceResolution:
                     continue
                     
 
-                if (False not in [str(w) in utils.str_list(candidate.head_words()) for w in current_mention.head_words()]) and (False not in [str(w) in utils.str_list(candidate.modifiers()) for w in current_mention.modifiers()]):
+                if (
+                    len(current_mention.head_words()) and False
+                    not in [
+                        str(w) in utils.str_list(candidate.head_words())
+                        for w in current_mention.head_words()
+                    ]
+                ) and (
+                    False not in [
+                        str(w) in utils.str_list(candidate.modifiers())
+                        for w in current_mention.modifiers()
+                    ]
+                ):
                     candidate.merge(current_mention)
                     break
 
@@ -595,10 +642,12 @@ class CoreferenceResolution:
 
                 candidate = self.mentions[i]
 
-                if Mention.check_parent(current_mention, candidate):
+                if Mention.check_i_in_i(current_mention, candidate):
                     continue
 
-                if True in [str(w) in utils.str_list(candidate.tokens) for w in current_mention.head_words()]:
+                if len(current_mention.head_words()) and False not in [
+                    str(w) in utils.str_list(candidate.tokens) for w in current_mention.head_words()
+                ]:
                     candidate.merge(current_mention)
                     break
 

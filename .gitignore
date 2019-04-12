@@ -103,5 +103,4 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-data/*
-libs/data/
+libs/data/*.v4_gold_conll

@@ -152,7 +152,6 @@ input[type="submit"]:active {
     margin-bottom: 100px;
     line-height: 40px;
     color: #555;
-    font-size: 14pt;
+    font-size: 12pt;
     text-align: justify;
 }
-
